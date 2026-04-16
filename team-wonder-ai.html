@@ -591,6 +591,10 @@
       margin-top: 12px;
     }
 
+    .court-sheet-mobile {
+      display: none;
+    }
+
     .net-line {
       position: absolute;
       left: 7%;
@@ -1148,71 +1152,50 @@
       }
 
       .court-sheet {
-        aspect-ratio: auto;
-        border-width: 5px;
+        display: none;
+      }
+
+      .court-sheet-mobile {
+        display: grid;
+        gap: 10px;
         margin-top: 10px;
-        min-height: 0;
+        padding: 14px 10px 12px;
+        border-width: 5px;
+        border-style: solid;
+        border-color: #f6efef;
+        border-radius: 18px;
+        background: #d9aab2;
+      }
+
+      .mobile-net {
+        justify-self: center;
+        background: var(--accent);
+        color: white;
+        font-size: 0.66rem;
+        font-weight: 800;
+        letter-spacing: 0.16em;
+        padding: 3px 9px;
+        border-radius: 999px;
+        line-height: 1;
+      }
+
+      .mobile-court-row {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        grid-template-rows: 46px repeat(2, minmax(72px, auto));
-        gap: 8px;
-        padding: 54px 8px 8px;
-        align-items: stretch;
+        gap: 6px;
+        align-items: start;
       }
 
-      .net-line {
-        top: 18px;
-        left: 8px;
-        right: 8px;
-        height: 7px;
+      .mobile-spot {
+        text-align: center;
+        color: var(--accent);
+        font-weight: 700;
+        font-size: 0.72rem;
+        line-height: 1.12;
+        min-height: 44px;
+        display: grid;
+        place-items: center;
       }
-
-      .net-line span {
-        top: -12px;
-        font-size: 0.62rem;
-        padding: 2px 6px;
-      }
-
-      .net-line::before,
-      .net-line::after {
-        width: 16px;
-        height: 16px;
-      }
-
-      .net-line::before {
-        left: -8px;
-      }
-
-      .net-line::after {
-        right: -8px;
-      }
-
-      .court-label {
-        position: static !important;
-        left: auto !important;
-        top: auto !important;
-        transform: none !important;
-        width: auto;
-        min-height: 72px;
-        padding: 6px 4px !important;
-        border-radius: 0;
-        background: transparent;
-        border: 0;
-        box-shadow: none;
-      }
-
-      .court-label strong {
-        font-size: 0.7rem;
-        line-height: 1.05;
-        text-shadow: none;
-      }
-
-      .court-label[data-slot="P4"] { grid-column: 1; grid-row: 2; }
-      .court-label[data-slot="P3"] { grid-column: 2; grid-row: 2; }
-      .court-label[data-slot="P2"] { grid-column: 3; grid-row: 2; }
-      .court-label[data-slot="P5"] { grid-column: 1; grid-row: 3; }
-      .court-label[data-slot="P6"] { grid-column: 2; grid-row: 3; }
-      .court-label[data-slot="P1"] { grid-column: 3; grid-row: 3; }
 
       .rotation-table th,
       .rotation-table td,
@@ -2036,6 +2019,7 @@
         P6: { left: "50%", top: "74%" },
         P1: { left: "81%", top: "74%" }
       };
+      const lineupBySlot = Object.fromEntries(setPlan.lineup.map(row => [row.slot, row.player]));
       const switchedInIds = new Set(
         rotationRows
           .map(row => row.playerInId)
@@ -2091,6 +2075,25 @@
                 </div>
               </div>
             `).join("")}
+          </div>
+          <div class="court-sheet-mobile">
+            <div class="mobile-net">NET</div>
+            <div class="mobile-court-row">
+              ${["P4", "P3", "P2"].map(slot => `
+                <div class="mobile-spot">
+                  <strong>#${escapeHtml(lineupBySlot[slot]?.number || "-")}</strong><br>
+                  <span>${escapeHtml(lineupBySlot[slot]?.name || "")}</span>
+                </div>
+              `).join("")}
+            </div>
+            <div class="mobile-court-row">
+              ${["P5", "P6", "P1"].map(slot => `
+                <div class="mobile-spot">
+                  <strong>#${escapeHtml(lineupBySlot[slot]?.number || "-")}</strong><br>
+                  <span>${escapeHtml(lineupBySlot[slot]?.name || "")}</span>
+                </div>
+              `).join("")}
+            </div>
           </div>
           <div class="note" style="margin-top: 14px;">
             <strong>Playing full set:</strong>
