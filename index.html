@@ -969,23 +969,39 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
+      #plan .actions {
+        width: 100%;
+        justify-content: flex-start;
+      }
+
+      #plan .actions .btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .lineup-card,
+      .metric-card {
+        padding: 14px;
+      }
+
       .court-sheet {
-        aspect-ratio: 4 / 4.1;
-        border-width: 7px;
+        aspect-ratio: 1 / 1.06;
+        border-width: 6px;
+        border-radius: 18px;
       }
 
       .net-line {
-        top: 54px;
+        top: 46px;
         left: 8%;
         right: 8%;
-        height: 9px;
-        box-shadow: 0 0 0 3px rgba(246, 239, 239, 0.2);
+        height: 8px;
+        box-shadow: 0 0 0 2px rgba(246, 239, 239, 0.2);
       }
 
       .net-line span {
-        top: -16px;
-        font-size: 0.74rem;
-        padding: 3px 8px;
+        top: -14px;
+        font-size: 0.68rem;
+        padding: 3px 7px;
       }
 
       .net-line::before,
@@ -1003,14 +1019,14 @@
       }
 
       .court-label {
-        width: 96px;
-        min-height: 58px;
-        padding: 4px 2px;
+        width: 78px;
+        min-height: 0;
+        padding: 2px 1px;
       }
 
       .court-label strong {
-        font-size: 0.82rem;
-        line-height: 1.1;
+        font-size: 0.7rem;
+        line-height: 1.05;
         word-break: break-word;
       }
 
@@ -1019,6 +1035,23 @@
         display: block;
         overflow-x: auto;
         white-space: nowrap;
+      }
+
+      .rotation-table th,
+      .rotation-table td,
+      .time-table th,
+      .time-table td {
+        padding: 8px 9px;
+        font-size: 0.82rem;
+      }
+
+      .lineup-wrap {
+        gap: 12px;
+      }
+
+      .note {
+        padding: 12px 13px;
+        font-size: 0.9rem;
       }
 
       .lineup-card h3 {
@@ -2224,9 +2257,10 @@
             .dotL { left: -11px; } .dotR { right: -11px; }
             .pos { position: absolute; transform: translate(-50%, -50%); width: 120px; text-align: center; color: #7b1e2b; font-weight: bold; }
             .note { margin-top: 10px; font-size: 13px; line-height: 1.45; }
-            .time-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
-            .time-table th, .time-table td { border-bottom: 1px solid #ead6da; text-align: left; padding: 8px; font-size: 13px; }
-            .time-table th { color: #7b1e2b; }
+            .switch-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 14px; }
+            .switch-table, .time-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            .switch-table th, .switch-table td, .time-table th, .time-table td { border-bottom: 1px solid #ead6da; text-align: left; padding: 8px; font-size: 13px; vertical-align: top; }
+            .switch-table th, .time-table th { color: #7b1e2b; }
           </style>
         </head>
         <body>
@@ -2236,6 +2270,33 @@
             </div>
             <div class="sets">
               ${plan.sets.slice(0, 2).map((setPlan, index) => printableSetCard(setPlan, index + 1, plan.rotationPlans[index]?.rows || [], attendingPlayers.length)).join("")}
+            </div>
+            <div class="switch-wrap">
+              ${plan.rotationPlans.slice(0, 2).map(block => `
+                <div class="card">
+                  <h3>${escapeHtml(block.title.replace("switch plan", "rotation plan"))}</h3>
+                  <table class="switch-table">
+                    <thead>
+                      <tr>
+                        <th>When</th>
+                        <th>Player In</th>
+                        <th>Player Out</th>
+                        <th>Spot</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${block.rows.map(row => `
+                        <tr>
+                          <td>${escapeHtml(row.when)}</td>
+                          <td>${escapeHtml(row.playerIn)}</td>
+                          <td>${escapeHtml(row.playerOut)}</td>
+                          <td>${escapeHtml(row.spot)}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              `).join("")}
             </div>
             <div class="card" style="margin-top: 14px;">
               <h3>Playing Time Balance</h3>
