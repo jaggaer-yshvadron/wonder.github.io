@@ -406,10 +406,40 @@
     }
 
     .attendance-card {
-      display: grid;
-      grid-template-columns: auto 1fr auto;
-      gap: 14px;
+      display: flex;
       align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+    }
+
+    .attendance-main {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      flex: 1;
+    }
+
+    .attendance-copy {
+      min-width: 0;
+    }
+
+    .attendance-name-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .attendance-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      margin: 0;
+      font-weight: 600;
+      color: var(--muted);
     }
 
     .player-header {
@@ -464,6 +494,7 @@
       background: linear-gradient(135deg, rgba(123, 30, 43, 0.12), rgba(163, 39, 57, 0.2));
       color: var(--accent);
       font-weight: 800;
+      flex-shrink: 0;
     }
 
     .tag-row,
@@ -665,35 +696,83 @@
       border-bottom: 0;
     }
 
-    .warmup-grid {
+    .warmup-hero {
+      position: relative;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.55), transparent 32%),
+        linear-gradient(135deg, rgba(123, 30, 43, 0.14), rgba(123, 30, 43, 0.03));
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 16px 18px;
+      box-shadow: 0 16px 40px rgba(78, 14, 25, 0.08);
+    }
+
+    .warmup-hero::after {
+      content: "";
+      position: absolute;
+      right: -18px;
+      top: -18px;
+      width: 110px;
+      height: 110px;
+      border-radius: 50%;
+      background: rgba(123, 30, 43, 0.08);
+    }
+
+    .warmup-flow {
+      position: relative;
       display: grid;
-      gap: 16px;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      margin-top: 18px;
+      gap: 12px;
+      margin-top: 14px;
     }
 
     .warmup-card {
+      position: relative;
       background: var(--panel-strong);
       border: 1px solid var(--line);
-      border-radius: 18px;
-      padding: 18px;
+      border-radius: 22px;
+      padding: 14px 16px 14px 72px;
       box-shadow: 0 14px 36px rgba(78, 14, 25, 0.08);
     }
 
     .warmup-icon {
-      font-size: 2rem;
+      position: absolute;
+      left: 16px;
+      top: 16px;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: rgba(123, 30, 43, 0.12);
+      border: 1px solid rgba(123, 30, 43, 0.12);
+      font-size: 1.2rem;
       line-height: 1;
-      margin-bottom: 10px;
+      z-index: 1;
+    }
+
+    .warmup-card h3 {
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .warmup-card small {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 0.88rem;
     }
 
     .warmup-list {
       margin: 0;
       padding-left: 18px;
-      color: var(--muted);
+      color: var(--text);
     }
 
     .warmup-list li {
-      margin-bottom: 8px;
+      margin-bottom: 6px;
+      line-height: 1.28;
     }
 
     .rotation-table {
@@ -812,8 +891,12 @@
     @media (max-width: 980px) {
       .two-up,
       .three-up,
-      .warmup-grid {
-        grid-template-columns: 1fr;
+      .warmup-card {
+        padding: 14px 14px 14px 68px;
+      }
+
+      .warmup-icon {
+        left: 12px;
       }
     }
 
@@ -976,26 +1059,12 @@
     <section class="tab-panel" id="setup">
       <div class="panel">
         <h2>NEXT GAME</h2>
-        <div class="tag-row">
-          <div>
-            <label for="teamName">Team Name</label>
-            <input id="teamName" value="Team Wonder AI" />
-          </div>
-          <div>
-            <label for="opponentName">Opponent</label>
-            <input id="opponentName" placeholder="Optional" />
-          </div>
-          <div>
-            <label for="matchDate">Match Date</label>
-            <input id="matchDate" type="date" />
-          </div>
-          <div>
-            <label for="includeThirdSet">Planning Mode</label>
-            <select id="includeThirdSet">
-              <option value="2">Plan 2 sets</option>
-              <option value="3">Plan 3 sets</option>
-            </select>
-          </div>
+        <div style="max-width: 240px;">
+          <label for="includeThirdSet">Set Plan</label>
+          <select id="includeThirdSet">
+            <option value="2">Plan 2 sets</option>
+            <option value="3">Plan 3 sets</option>
+          </select>
         </div>
         <div class="actions" style="margin-top: 14px;">
           <button class="btn btn-soft" id="savePlanner">Save and propsose sets postions</button>
@@ -1058,19 +1127,16 @@
     </section>
 
     <section class="tab-panel" id="warmup">
-      <div class="panel">
-        <h2>WARM UP</h2>
-        <p><strong>TEAM WONDER</strong></p>
-        <p><em>We show up and show them who we are.</em></p>
+      <div class="warmup-hero">
+        <h2 style="margin: 0;">WARM UP - TEAM WONDER - We show up and show them who we are.</h2>
         <div class="actions" style="margin-top: 12px;">
           <button class="btn btn-soft" id="printWarmups">Print Warm Up Page</button>
         </div>
       </div>
-      <div class="warmup-grid">
+      <div class="warmup-flow">
         <article class="warmup-card">
           <div class="warmup-icon">🔥</div>
           <h3>Mindset</h3>
-          <small>Set the tone before the first ball</small>
           <ul class="warmup-list">
             <li>🗣 Talk early, talk loud.</li>
             <li>⚡ Move with purpose.</li>
@@ -1080,7 +1146,6 @@
         <article class="warmup-card">
           <div class="warmup-icon">🏃‍♀️</div>
           <h3>1. Team Energy &amp; Movement · 4 min</h3>
-          <small>Goal: heart rate up, move as one</small>
           <ul class="warmup-list">
             <li>Line up on the baseline in one line.</li>
             <li>🏃‍♀️ Run to net then 🔙 backpedal, 2 times.</li>
@@ -1094,7 +1159,6 @@
         <article class="warmup-card">
           <div class="warmup-icon">🏐</div>
           <h3>2. Ball Warm-Up · 4 min</h3>
-          <small>Goal: touch and shoulder activation</small>
           <ul class="warmup-list">
             <li>With a partner, share 1 ball.</li>
             <li>🤲 Controlled passing with focus on platform and target.</li>
@@ -1105,7 +1169,6 @@
         <article class="warmup-card">
           <div class="warmup-icon">🎯</div>
           <h3>3. Net Work · 5 min</h3>
-          <small>Goal: movement, timing and controlled attack</small>
           <ul class="warmup-list">
             <li>In lines: 🎯 toss, 🏃‍♀️ approach, then 💥 controlled attack.</li>
             <li>Progression: ✋ catch and form, then 💥 full approach and hit to space.</li>
@@ -1116,7 +1179,6 @@
         <article class="warmup-card">
           <div class="warmup-icon">🎯</div>
           <h3>4. Serve · 1-2 min</h3>
-          <small>Goal: intentional serving</small>
           <ul class="warmup-list">
             <li>🎯 Serve to zones and call your spot before serving.</li>
             <li>🧱 Teammates pass and control the ball.</li>
@@ -1125,7 +1187,6 @@
         <article class="warmup-card">
           <div class="warmup-icon">🤝</div>
           <h3>5. Team Lock-In · 1 min</h3>
-          <small>Goal: focus and unity</small>
           <ul class="warmup-list">
             <li>🤝 Quick huddle.</li>
             <li>🧠 1 focus word.</li>
@@ -1296,9 +1357,6 @@
     const planOutput = document.getElementById("planOutput");
     const metrics = document.getElementById("metrics");
     const includeThirdSet = document.getElementById("includeThirdSet");
-    const teamName = document.getElementById("teamName");
-    const opponentName = document.getElementById("opponentName");
-    const matchDate = document.getElementById("matchDate");
     const saveStatus = document.getElementById("saveStatus");
     const fxLayer = document.getElementById("fxLayer");
 
@@ -1315,9 +1373,6 @@
         state.planReady = false;
       }
       includeThirdSet.value = String(state.setCount || 2);
-      teamName.value = state.teamName || "Team Wonder AI";
-      opponentName.value = state.opponentName || "";
-      matchDate.value = state.matchDate || "";
       bindEvents();
 
       if (!state.players.length) {
@@ -1380,24 +1435,6 @@
 
       includeThirdSet.addEventListener("change", () => {
         state.setCount = Number(includeThirdSet.value);
-        markPlanDirty();
-        saveState();
-      });
-
-      teamName.addEventListener("input", () => {
-        state.teamName = teamName.value;
-        markPlanDirty();
-        saveState();
-      });
-
-      opponentName.addEventListener("input", () => {
-        state.opponentName = opponentName.value;
-        markPlanDirty();
-        saveState();
-      });
-
-      matchDate.addEventListener("input", () => {
-        state.matchDate = matchDate.value;
         markPlanDirty();
         saveState();
       });
@@ -1490,15 +1527,17 @@
 
       attendanceList.innerHTML = state.players.map(player => `
         <div class="attendance-card">
-          <div class="shirt">${escapeHtml(player.number || "?")}</div>
-          <div>
-            <strong>${escapeHtml(player.name)}</strong>
-            <div style="margin-top: 6px;">
-              <span class="pill">${escapeHtml(player.primaryRole || "Universal")}</span>
-              ${player.isLibero ? `<span class="pill">Libero</span>` : ""}
+          <div class="attendance-main">
+            <div class="shirt">${escapeHtml(player.number || "?")}</div>
+            <div class="attendance-copy">
+              <div class="attendance-name-row">
+                <strong>${escapeHtml(player.name)}</strong>
+                <span class="pill">${escapeHtml(player.primaryRole || "Universal")}</span>
+                ${player.isLibero ? `<span class="pill">Libero</span>` : ""}
+              </div>
             </div>
           </div>
-          <label style="display:flex; align-items:center; gap:10px; margin:0;">
+          <label class="attendance-toggle">
             <input type="checkbox" data-attend="${player.id}" ${player.attending ? "checked" : ""}>
             Attending
           </label>
@@ -2193,8 +2232,7 @@
         <body>
           <div class="page">
             <div class="top">
-              <h1>${escapeHtml(state.teamName || "Team Wonder AI")} Final Setup</h1>
-              <p>${escapeHtml(state.matchDate || "")}${state.opponentName ? ` · vs ${escapeHtml(state.opponentName)}` : ""}</p>
+              <h1>Team Wonder AI Final Setup</h1>
             </div>
             <div class="sets">
               ${plan.sets.slice(0, 2).map((setPlan, index) => printableSetCard(setPlan, index + 1, plan.rotationPlans[index]?.rows || [], attendingPlayers.length)).join("")}
@@ -2279,16 +2317,18 @@
           <meta charset="UTF-8">
           <title>Team Wonder AI Warm Ups</title>
           <style>
-            @page { size: A4; margin: 14mm; }
+            @page { size: A4; margin: 8mm; }
             body { font-family: Arial, sans-serif; color: #2b1114; margin: 0; }
-            .page { padding: 8px; }
-            .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
-            .card { border: 1px solid #d8b8be; border-radius: 14px; padding: 14px; }
-            .icon { font-size: 28px; margin-bottom: 8px; }
-            .kicker { margin: 0 0 6px; font-weight: 700; color: #7b1e2b; }
-            .sub { margin: 0 0 14px; font-style: italic; }
-            ul { margin: 8px 0 0; padding-left: 18px; }
-            li { margin-bottom: 6px; }
+            .page { padding: 2px; }
+            h1 { margin: 0 0 4px; font-size: 24px; }
+            h3 { margin: 0 0 4px; font-size: 16px; }
+            .grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+            .card { border: 1px solid #d8b8be; border-radius: 12px; padding: 9px 10px; }
+            .icon { font-size: 20px; margin-bottom: 4px; }
+            .kicker { margin: 0 0 4px; font-weight: 700; color: #7b1e2b; font-size: 12px; }
+            .sub { margin: 0 0 8px; font-style: italic; font-size: 13px; }
+            ul { margin: 4px 0 0; padding-left: 16px; }
+            li { margin-bottom: 3px; font-size: 12px; line-height: 1.25; }
           </style>
         </head>
         <body>
