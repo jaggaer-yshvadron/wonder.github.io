@@ -110,7 +110,7 @@
 
     .tab-bar {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(5, minmax(0, 1fr));
       gap: 0;
       margin-bottom: 18px;
       overflow: hidden;
@@ -665,6 +665,37 @@
       border-bottom: 0;
     }
 
+    .warmup-grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 18px;
+    }
+
+    .warmup-card {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 14px 36px rgba(78, 14, 25, 0.08);
+    }
+
+    .warmup-icon {
+      font-size: 2rem;
+      line-height: 1;
+      margin-bottom: 10px;
+    }
+
+    .warmup-list {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--muted);
+    }
+
+    .warmup-list li {
+      margin-bottom: 8px;
+    }
+
     .rotation-table {
       width: 100%;
       border-collapse: collapse;
@@ -780,7 +811,8 @@
 
     @media (max-width: 980px) {
       .two-up,
-      .three-up {
+      .three-up,
+      .warmup-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -930,7 +962,8 @@
       <button class="tab-button active" data-tab="team">1. THE TEAM</button>
       <button class="tab-button" data-tab="traits">2. PLAYERS</button>
       <button class="tab-button" data-tab="setup">3. THE GAME</button>
-      <button class="tab-button" data-tab="plan">4. AI SET UP</button>
+      <button class="tab-button" data-tab="warmup">4. WARM UP</button>
+      <button class="tab-button" data-tab="plan">5. AI SET UP</button>
     </div>
 
     <section class="tab-panel active" id="team">
@@ -1012,13 +1045,61 @@
             <h2 style="margin-bottom: 4px;">AI SET UP</h2>
             <small>Balanced around fit, libero rules, and equal playing time.</small>
           </div>
-          <button class="btn btn-primary" id="recommendBtn">Recommend Lineups</button>
+          <div class="actions">
+            <button class="btn btn-primary" id="recommendBtn">Recommend Lineups</button>
+            <button class="btn btn-ghost" id="exportPlan">Export / Print PDF</button>
+          </div>
         </div>
       </div>
 
       <div class="panel" style="margin-top: 18px;">
         <div class="metrics" id="metrics"></div>
         <div id="planOutput"></div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="warmup">
+      <div class="panel">
+        <h2>WARM UP</h2>
+        <p><strong>We warm up like champs, come together and show them who we are.</strong></p>
+        <div class="actions" style="margin-top: 12px;">
+          <button class="btn btn-soft" id="printWarmups">Print Warm Up Page</button>
+        </div>
+      </div>
+      <div class="warmup-grid">
+        <article class="warmup-card">
+          <div class="warmup-icon">🏐</div>
+          <h3>Warm Up 1 · 15 Minutes</h3>
+          <small>Baseline net warm up and rhythm</small>
+          <ul class="warmup-list">
+            <li>Baseline net warm out.</li>
+            <li>Arm warm up with ball.</li>
+            <li>If time, 3 person warm up to get moving at the baseline.</li>
+            <li>Come together to plan for the game.</li>
+          </ul>
+        </article>
+        <article class="warmup-card">
+          <div class="warmup-icon">🏃‍♀️</div>
+          <h3>Warm Up 2 · 15 Minutes</h3>
+          <small>Movement, timing and attacking flow</small>
+          <ul class="warmup-list">
+            <li>Attacking while moving forward with momentum.</li>
+            <li>Catch and attack the ball with quick feet.</li>
+            <li>Serve receive touch and control reps.</li>
+            <li>Short team huddle: energy, focus, first-set message.</li>
+          </ul>
+        </article>
+        <article class="warmup-card">
+          <div class="warmup-icon">🎯</div>
+          <h3>Warm Up 3 · 15 Minutes</h3>
+          <small>Serving pressure and game sharpness</small>
+          <ul class="warmup-list">
+            <li>Serving to zones with intent.</li>
+            <li>Quick partner control to stay loose.</li>
+            <li>Fast defensive reactions and communication.</li>
+            <li>Come together, breathe, and walk in as one unit.</li>
+          </ul>
+        </article>
       </div>
     </section>
 
@@ -1196,10 +1277,7 @@
         state.rosterText = excelRosterText;
       }
       if (Array.isArray(state.players) && state.players.length) {
-        state.players = state.players.map(player => ({
-          ...player,
-          imagePath: player.imagePath || defaultImagePathForName(player.name)
-        }));
+        state.players = state.players.map((player, index) => normalizePlayer(player, index));
       }
       if (typeof state.planReady !== "boolean") {
         state.planReady = false;
@@ -1223,7 +1301,11 @@
 
     function bindEvents() {
       document.getElementById("clearAll").addEventListener("click", () => {
-        localStorage.removeItem(STORAGE_KEY);
+        try {
+          localStorage.removeItem(STORAGE_KEY);
+        } catch (error) {
+          console.warn("Could not clear planner state.", error);
+        }
         location.reload();
       });
 
@@ -1258,6 +1340,14 @@
 
       document.getElementById("recommendBtn").addEventListener("click", () => {
         renderRecommendation();
+      });
+
+      document.getElementById("exportPlan").addEventListener("click", () => {
+        exportPrintablePlan();
+      });
+
+      document.getElementById("printWarmups").addEventListener("click", () => {
+        printWarmups();
       });
 
       includeThirdSet.addEventListener("change", () => {
@@ -1715,7 +1805,10 @@
           <div class="court-sheet">
             <div class="net-line"><span>NET</span></div>
             ${setPlan.lineup.map(row => `
-              <div class="court-label" style="left:${slotPositions[row.slot].left}; top:${slotPositions[row.slot].top};">
+              <div
+                class="court-label"
+                style="position:absolute; left:${slotPositions[row.slot].left}; top:${slotPositions[row.slot].top}; transform:translate(-50%, -50%); width:160px; min-height:88px; padding:8px 6px; text-align:center; display:grid; place-items:center; color:var(--accent); z-index:2;"
+              >
                 <div>
                   <strong>#${escapeHtml(row.player.number || "-")}</strong>
                   <strong>${escapeHtml(row.player.name)}</strong>
@@ -1928,11 +2021,43 @@
       return { rows, segmentTracking: localTracking };
     }
 
+    function normalizePlayer(player, index) {
+      const safePlayer = player || {};
+      const signature = playerSignature({
+        name: safePlayer.name || `Player ${index + 1}`,
+        number: safePlayer.number || ""
+      });
+
+      return {
+        id: safePlayer.id || `${signature}-${index}`,
+        number: safePlayer.number || "",
+        name: safePlayer.name || `Player ${index + 1}`,
+        imageData: safePlayer.imageData || "",
+        imagePath: safePlayer.imagePath || defaultImagePathForName(safePlayer.name),
+        attending: typeof safePlayer.attending === "boolean" ? safePlayer.attending : true,
+        primaryRole: safePlayer.primaryRole || "Universal",
+        isLibero: Boolean(safePlayer.isLibero),
+        skills: {
+          ...defaultSkills,
+          ...(safePlayer.skills || {})
+        }
+      };
+    }
+
     function loadState() {
       try {
-        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        const raw = localStorage.getItem(STORAGE_KEY);
+        const saved = JSON.parse(raw || "null");
         if (saved && Array.isArray(saved.players)) {
-          return saved;
+          return {
+            rosterText: saved.rosterText || "",
+            setCount: Number(saved.setCount) || 2,
+            teamName: saved.teamName || "Team Wonder AI",
+            opponentName: saved.opponentName || "",
+            matchDate: saved.matchDate || "",
+            planReady: Boolean(saved.planReady),
+            players: saved.players.map((player, index) => normalizePlayer(player, index))
+          };
         }
       } catch (error) {
         console.warn("Could not load saved planner state.", error);
@@ -1948,13 +2073,23 @@
     }
 
     function saveState(showFeedback = false) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      let storageAvailable = true;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (error) {
+        storageAvailable = false;
+        console.warn("Could not save planner state.", error);
+      }
       if (saveStatus) {
-        saveStatus.textContent = showFeedback
-          ? `Saved at ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`
-          : state.planReady
-            ? "Saved. Set suggestions match the current game setup."
-            : "Changes are saved. Save from THE GAME when you want fresh set suggestions.";
+        if (!storageAvailable) {
+          saveStatus.textContent = "This browser window cannot save locally, but the planner is still usable.";
+        } else {
+          saveStatus.textContent = showFeedback
+            ? `Saved at ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`
+            : state.planReady
+              ? "Saved. Set suggestions match the current game setup."
+              : "Changes are saved. Save from THE GAME when you want fresh set suggestions.";
+        }
       }
     }
 
@@ -1982,6 +2117,162 @@
     function formatHalfSetValue(segmentsPlayed) {
       const halfSets = Math.round(((segmentsPlayed / 7) * 2)) / 2;
       return `${halfSets.toFixed(1)} sets`;
+    }
+
+    function exportPrintablePlan() {
+      if (!state.planReady) {
+        alert("Save from THE GAME first so the final set setup is ready to export.");
+        return;
+      }
+
+      const attendingPlayers = state.players.filter(player => player.attending);
+      if (attendingPlayers.length < 6) {
+        alert("At least 6 attending players are needed before exporting the final setup.");
+        return;
+      }
+
+      const plan = buildPlan(attendingPlayers, Number(includeThirdSet.value));
+      const exportHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Team Wonder AI Final Setup</title>
+          <style>
+            @page { size: A4; margin: 14mm; }
+            body { font-family: Arial, sans-serif; color: #2b1114; margin: 0; }
+            h1, h2, h3, p { margin: 0 0 10px; }
+            .page { padding: 8px; }
+            .top { margin-bottom: 14px; }
+            .sets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+            .card { border: 1px solid #d8b8be; border-radius: 14px; padding: 12px; break-inside: avoid; }
+            .pill { float: right; background: #f0e2e5; color: #7b1e2b; padding: 6px 10px; border-radius: 999px; font-weight: bold; }
+            .court { position: relative; height: 300px; background: #d9aab2; border-radius: 18px; margin: 10px 0 12px; border: 7px solid #f6efef; }
+            .net { position: absolute; left: 7%; right: 7%; top: 54px; height: 10px; background: #f6efef; border-radius: 999px; }
+            .net-label { position: absolute; left: 50%; top: -16px; transform: translateX(-50%); background: #7b1e2b; color: #fff; font-weight: bold; padding: 3px 8px; border-radius: 999px; font-size: 12px; letter-spacing: 0.18em; }
+            .dotL, .dotR { position: absolute; top: 50%; width: 22px; height: 22px; background: #f6efef; border-radius: 50%; transform: translateY(-50%); }
+            .dotL { left: -11px; } .dotR { right: -11px; }
+            .pos { position: absolute; transform: translate(-50%, -50%); width: 120px; text-align: center; color: #7b1e2b; font-weight: bold; }
+            .note { margin-top: 10px; font-size: 13px; line-height: 1.45; }
+            .time-table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+            .time-table th, .time-table td { border-bottom: 1px solid #ead6da; text-align: left; padding: 8px; font-size: 13px; }
+            .time-table th { color: #7b1e2b; }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <div class="top">
+              <h1>${escapeHtml(state.teamName || "Team Wonder AI")} Final Setup</h1>
+              <p>${escapeHtml(state.matchDate || "")}${state.opponentName ? ` · vs ${escapeHtml(state.opponentName)}` : ""}</p>
+            </div>
+            <div class="sets">
+              ${plan.sets.slice(0, 2).map((setPlan, index) => printableSetCard(setPlan, index + 1, plan.rotationPlans[index]?.rows || [], attendingPlayers.length)).join("")}
+            </div>
+            <div class="card" style="margin-top: 14px;">
+              <h3>Playing Time Balance</h3>
+              <table class="time-table">
+                <thead><tr><th>Player</th><th>Number</th><th>Played</th></tr></thead>
+                <tbody>
+                  ${plan.fairness.players.map(player => `
+                    <tr>
+                      <td>${escapeHtml(player.name)}</td>
+                      <td>#${escapeHtml(player.number || "-")}</td>
+                      <td>${formatHalfSetValue(player.segmentsPlayed)}</td>
+                    </tr>
+                  `).join("")}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <script>window.onload = () => window.print();</script>
+        </body>
+        </html>
+      `;
+
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+      printWindow.document.open();
+      printWindow.document.write(exportHtml);
+      printWindow.document.close();
+    }
+
+    function printableSetCard(setPlan, setNumber, rotationRows, attendingCount) {
+      const slotPositions = {
+        P4: { left: "19%", top: "26%" },
+        P3: { left: "50%", top: "26%" },
+        P2: { left: "81%", top: "26%" },
+        P5: { left: "19%", top: "74%" },
+        P6: { left: "50%", top: "74%" },
+        P1: { left: "81%", top: "74%" }
+      };
+      const switchedInIds = new Set(rotationRows.map(row => row.playerInId).filter(Boolean));
+      const switchedOutIds = new Set(rotationRows.map(row => row.playerOutId).filter(Boolean));
+      const partialSetPlayers = Array.from(new Map(rotationRows.flatMap(row => {
+        const names = [];
+        if (row.playerIn && row.playerIn !== "-") names.push([row.playerInId || row.playerIn, row.playerIn]);
+        if (row.playerOut && row.playerOut !== "-") names.push([row.playerOutId || row.playerOut, row.playerOut]);
+        return names;
+      })).values());
+      const neverSwitchedIn = setPlan.bench.filter(player => !switchedInIds.has(player.id));
+      const fullSetPlayers = setPlan.lineup.map(row => row.player).filter(player => !switchedOutIds.has(player.id));
+      const partialSetLabel = partialSetPlayers.length >= attendingCount ? "ALL" : (partialSetPlayers.length ? partialSetPlayers.map(escapeHtml).join(", ") : "No one");
+
+      return `
+        <div class="card">
+          <div><span class="pill">${setPlan.bench.length ? `${setPlan.bench.length} on bench` : "Full six locked"}</span><h2>Set ${setNumber}</h2></div>
+          <p>${escapeHtml(setPlan.label)}</p>
+          <p><strong>Positions</strong></p>
+          <div class="court">
+            <div class="net"><span class="net-label">NET</span><span class="dotL"></span><span class="dotR"></span></div>
+            ${setPlan.lineup.map(row => `
+              <div class="pos" style="left:${slotPositions[row.slot].left}; top:${slotPositions[row.slot].top};">
+                #${escapeHtml(row.player.number || "-")}<br>${escapeHtml(row.player.name)}
+              </div>
+            `).join("")}
+          </div>
+          <div class="note"><strong>Playing full set:</strong> ${fullSetPlayers.length ? fullSetPlayers.map(player => `#${escapeHtml(player.number || "-")} ${escapeHtml(player.name)}`).join(", ") : "No one"}</div>
+          <div class="note"><strong>Isn't playing this set:</strong> ${neverSwitchedIn.length ? neverSwitchedIn.map(player => `#${escapeHtml(player.number || "-")} ${escapeHtml(player.name)}`).join(", ") : "No one"}</div>
+          <div class="note"><strong>Playing part of the set:</strong> ${partialSetLabel}</div>
+        </div>
+      `;
+    }
+
+    function printWarmups() {
+      const warmupHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>Team Wonder AI Warm Ups</title>
+          <style>
+            @page { size: A4; margin: 14mm; }
+            body { font-family: Arial, sans-serif; color: #2b1114; margin: 0; }
+            .page { padding: 8px; }
+            .grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+            .card { border: 1px solid #d8b8be; border-radius: 14px; padding: 14px; }
+            .icon { font-size: 28px; margin-bottom: 8px; }
+            ul { margin: 8px 0 0; padding-left: 18px; }
+            li { margin-bottom: 6px; }
+          </style>
+        </head>
+        <body>
+          <div class="page">
+            <h1>We warm up like champs, come together and show them who we are.</h1>
+            <div class="grid">
+              <div class="card"><div class="icon">🏐</div><h3>Warm Up 1 · 15 Minutes</h3><ul><li>Baseline net warm out.</li><li>Arm warm up with ball.</li><li>If time, 3 person warm up to get moving at the baseline.</li><li>Come together to plan for the game.</li></ul></div>
+              <div class="card"><div class="icon">🏃‍♀️</div><h3>Warm Up 2 · 15 Minutes</h3><ul><li>Attacking while moving forward with momentum.</li><li>Catch and attack the ball.</li><li>Serve receive touch and control reps.</li><li>Short team huddle for focus.</li></ul></div>
+              <div class="card"><div class="icon">🎯</div><h3>Warm Up 3 · 15 Minutes</h3><ul><li>Serving to zones with intent.</li><li>Quick partner control to stay loose.</li><li>Fast defensive reactions and communication.</li><li>Come together, breathe, and walk in as one unit.</li></ul></div>
+            </div>
+          </div>
+          <script>window.onload = () => window.print();</script>
+        </body>
+        </html>
+      `;
+      const printWindow = window.open("", "_blank");
+      if (!printWindow) return;
+      printWindow.document.open();
+      printWindow.document.write(warmupHtml);
+      printWindow.document.close();
     }
 
     function switchToTab(tabId) {
