@@ -1,0 +1,1952 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Team Wonder AI</title>
+  <style>
+    :root {
+      --bg: #f8f0f0;
+      --panel: rgba(255, 250, 250, 0.88);
+      --panel-strong: #fff7f7;
+      --text: #2b1114;
+      --muted: #6a4c51;
+      --line: rgba(119, 40, 52, 0.18);
+      --accent: #7b1e2b;
+      --accent-2: #a32739;
+      --accent-3: #d9a6ad;
+      --sparkle: #ffd866;
+      --sparkle-2: #fff2a6;
+      --good: #336b4b;
+      --warning: #a05817;
+      --shadow: 0 18px 45px rgba(78, 14, 25, 0.16);
+      --radius: 22px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at 15% 10%, rgba(255, 216, 102, 0.14), transparent 14%),
+        radial-gradient(circle at 88% 14%, rgba(255, 242, 166, 0.16), transparent 12%),
+        radial-gradient(circle at top left, rgba(163, 39, 57, 0.16), transparent 28%),
+        radial-gradient(circle at 80% 20%, rgba(123, 30, 43, 0.14), transparent 22%),
+        linear-gradient(145deg, #f6ecec 0%, #f3e2e4 48%, #f8f4f4 100%);
+      min-height: 100vh;
+    }
+
+    .shell {
+      width: min(1240px, calc(100% - 32px));
+      margin: 28px auto 40px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+      border-radius: 28px;
+      background:
+        linear-gradient(120deg, rgba(123, 30, 43, 0.94), rgba(150, 29, 48, 0.88)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), transparent);
+      color: #fff8f8;
+      box-shadow: var(--shadow);
+      margin-bottom: 22px;
+    }
+
+    .hero::before {
+      content: "✦";
+      position: absolute;
+      top: 18px;
+      right: 24px;
+      font-size: 1.7rem;
+      color: var(--sparkle);
+      animation: twinkle 2.2s ease-in-out infinite;
+      text-shadow: 0 0 18px rgba(255, 216, 102, 0.45);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -110px auto;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      filter: blur(2px);
+    }
+
+    .hero h1 {
+      margin: 0 0 10px;
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      letter-spacing: 0.03em;
+    }
+
+    .hero p {
+      max-width: 760px;
+      margin: 0;
+      color: rgba(255, 244, 245, 0.88);
+      line-height: 1.55;
+      font-size: 1.02rem;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 248, 240, 0.96);
+      font-size: 0.9rem;
+      font-weight: 700;
+      backdrop-filter: blur(8px);
+    }
+
+    .tab-bar {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin-bottom: 18px;
+      overflow: hidden;
+      border-radius: 20px;
+    }
+
+    .tab-button {
+      border: 0;
+      border-radius: 0;
+      padding: 16px 26px 16px 18px;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 700;
+      color: var(--muted);
+      background: rgba(255, 255, 255, 0.72);
+      box-shadow: 0 10px 24px rgba(78, 14, 25, 0.08);
+      transition: transform 140ms ease, background 140ms ease, color 140ms ease;
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%, 12px 50%);
+      margin-right: -10px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      transform: translateY(-1px);
+      z-index: 3;
+    }
+
+    .tab-button:first-child {
+      clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 50%, calc(100% - 18px) 100%, 0 100%);
+    }
+
+    .tab-button:last-child {
+      clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%);
+      margin-right: 0;
+    }
+
+    .tab-button:first-child.active {
+      animation: bounceBall 1.9s ease-in-out infinite;
+      transform-origin: center bottom;
+    }
+
+    .tab-panel {
+      display: none;
+      animation: fadeIn 180ms ease;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes twinkle {
+      0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.7; }
+      50% { transform: scale(1.18) rotate(12deg); opacity: 1; }
+    }
+
+    @keyframes bounceBall {
+      0%, 100% { transform: translateY(-1px); }
+      15% { transform: translateY(-6px) scale(1.01); }
+      30% { transform: translateY(2px) scale(0.99, 1.01); }
+      45% { transform: translateY(-4px); }
+      60% { transform: translateY(0); }
+    }
+
+    @keyframes floatCard {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .grid {
+      display: grid;
+      gap: 18px;
+    }
+
+    .two-up {
+      grid-template-columns: 1.05fr 0.95fr;
+    }
+
+    .three-up {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .panel {
+      background: var(--panel);
+      backdrop-filter: blur(14px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 22px;
+      box-shadow: 0 14px 36px rgba(78, 14, 25, 0.08);
+    }
+
+    .panel-highlight {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel-highlight::after {
+      content: "";
+      position: absolute;
+      inset: auto -30px -36px auto;
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255, 216, 102, 0.2), transparent 70%);
+      pointer-events: none;
+    }
+
+    .panel h2,
+    .panel h3 {
+      margin: 0 0 10px;
+    }
+
+    .panel p,
+    .panel li {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .panel label {
+      display: block;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .panel small {
+      color: var(--muted);
+    }
+
+    textarea,
+    input,
+    select {
+      width: 100%;
+      border: 1px solid rgba(123, 30, 43, 0.16);
+      background: rgba(255, 255, 255, 0.88);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 12px 14px;
+      font: inherit;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    input[type="range"] {
+      padding: 0;
+      accent-color: var(--accent);
+      background: transparent;
+      border: 0;
+    }
+
+    input[type="checkbox"] {
+      width: auto;
+      accent-color: var(--accent);
+      transform: translateY(1px);
+    }
+
+    .actions,
+    .inline-actions,
+    .attendance-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn {
+      border: 0;
+      cursor: pointer;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      transition: transform 140ms ease, opacity 140ms ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: white;
+      animation: bounceBall 2.4s ease-in-out infinite;
+    }
+
+    .btn-soft {
+      background: rgba(123, 30, 43, 0.08);
+      color: var(--accent);
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.84);
+      color: var(--muted);
+      border: 1px solid var(--line);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, #245a3c, #2f7d50);
+      color: white;
+    }
+
+    .attendance-list,
+    .player-forms,
+    .lineup-wrap,
+    .articles,
+    .team-grid {
+      display: grid;
+      gap: 14px;
+    }
+
+    .attendance-card,
+    .player-card,
+    .lineup-card,
+    .article-card,
+    .metric-card,
+    .team-card {
+      background: var(--panel-strong);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .team-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .team-card {
+      text-align: center;
+      padding: 14px;
+      animation: floatCard 5.5s ease-in-out infinite;
+    }
+
+    .team-card:nth-child(2n) {
+      animation-delay: 0.5s;
+    }
+
+    .team-card:nth-child(3n) {
+      animation-delay: 1s;
+    }
+
+    .team-photo {
+      aspect-ratio: 4 / 5;
+      width: 100%;
+      border-radius: 18px;
+      background:
+        linear-gradient(145deg, rgba(123, 30, 43, 0.18), rgba(163, 39, 57, 0.08)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+      border: 1px solid rgba(123, 30, 43, 0.12);
+      overflow: hidden;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 1.1rem;
+      letter-spacing: 0.06em;
+    }
+
+    .team-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .team-card h3 {
+      margin: 0 0 4px;
+      font-size: 1.02rem;
+    }
+
+    .team-card p {
+      margin: 0 0 12px;
+    }
+
+    .team-upload {
+      margin-top: 12px;
+      text-align: left;
+    }
+
+    .team-upload input[type="file"] {
+      padding: 10px 12px;
+      background: rgba(255, 255, 255, 0.88);
+    }
+
+    .attendance-card {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+    }
+
+    .player-header {
+      display: grid;
+      grid-template-columns: 88px 1fr auto;
+      gap: 14px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .player-thumb {
+      width: 88px;
+      height: 108px;
+      border-radius: 18px;
+      overflow: hidden;
+      background:
+        linear-gradient(145deg, rgba(123, 30, 43, 0.18), rgba(163, 39, 57, 0.08)),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.4), transparent);
+      border: 1px solid rgba(123, 30, 43, 0.12);
+      display: grid;
+      place-items: center;
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .player-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .save-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .save-status {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .shirt {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, rgba(123, 30, 43, 0.12), rgba(163, 39, 57, 0.2));
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .tag-row,
+    .skill-grid,
+    .metrics {
+      display: grid;
+      gap: 12px;
+    }
+
+    .tag-row {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .skill-grid {
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      margin-top: 16px;
+    }
+
+    .skill {
+      border: 1px solid rgba(123, 30, 43, 0.1);
+      border-radius: 14px;
+      padding: 12px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .skill-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .skill-head span:last-child {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .note {
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: rgba(123, 30, 43, 0.08);
+      color: var(--accent);
+      margin-top: 14px;
+      line-height: 1.5;
+    }
+
+    .wink {
+      display: inline-block;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .metrics {
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      margin-bottom: 16px;
+    }
+
+    .metric-card strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 1.45rem;
+      color: var(--accent);
+    }
+
+    .lineup-list,
+    .switch-list,
+    .knowledge-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .lineup-list li,
+    .switch-list li {
+      background: rgba(255, 255, 255, 0.74);
+      border: 1px solid rgba(123, 30, 43, 0.08);
+      border-radius: 14px;
+      padding: 12px 14px;
+      color: var(--text);
+    }
+
+    .court-sheet {
+      position: relative;
+      aspect-ratio: 4 / 3.2;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #d9aab2;
+      border: 10px solid #f6efef;
+      box-shadow: inset 0 0 0 1px rgba(123, 30, 43, 0.08);
+      margin-top: 12px;
+    }
+
+    .net-line {
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      top: 72px;
+      height: 12px;
+      background: #f6efef;
+      border-radius: 999px;
+      box-shadow: 0 0 0 4px rgba(246, 239, 239, 0.2);
+    }
+
+    .net-line::before,
+    .net-line::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: #f6efef;
+      transform: translateY(-50%);
+    }
+
+    .net-line::before {
+      left: -15px;
+    }
+
+    .net-line::after {
+      right: -15px;
+    }
+
+    .court-spot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      min-height: 110px;
+      border-radius: 22px;
+      background: rgba(255, 252, 252, 0.94);
+      color: var(--accent);
+      padding: 14px 10px;
+      text-align: center;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 24px rgba(78, 14, 25, 0.12);
+      border: 2px solid rgba(123, 30, 43, 0.08);
+    }
+
+    .court-spot strong {
+      display: block;
+      font-size: 1rem;
+      line-height: 1.15;
+    }
+
+    .court-spot small {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--muted);
+      line-height: 1.2;
+    }
+
+    .player-save-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 14px;
+    }
+
+    .time-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(123, 30, 43, 0.08);
+    }
+
+    .time-table th,
+    .time-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(123, 30, 43, 0.08);
+    }
+
+    .time-table th {
+      color: var(--accent);
+      font-size: 0.88rem;
+      letter-spacing: 0.03em;
+    }
+
+    .time-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .rotation-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.76);
+      border: 1px solid rgba(123, 30, 43, 0.08);
+    }
+
+    .rotation-table th,
+    .rotation-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(123, 30, 43, 0.08);
+      vertical-align: top;
+    }
+
+    .rotation-table th {
+      color: var(--accent);
+      font-size: 0.88rem;
+      letter-spacing: 0.03em;
+    }
+
+    .rotation-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .article-card a {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(123, 30, 43, 0.1);
+      color: var(--accent);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    .empty {
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px dashed rgba(123, 30, 43, 0.28);
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.92rem;
+    }
+
+    .fx-layer {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 40;
+    }
+
+    .fx-item {
+      position: absolute;
+      will-change: transform, opacity;
+      user-select: none;
+    }
+
+    .volley-burst {
+      font-size: 1.9rem;
+      animation: volleyballBurst 1300ms ease-out forwards;
+    }
+
+    .trophy-flip {
+      right: 26px;
+      top: 110px;
+      font-size: 4rem;
+      animation: trophyFlip 1400ms ease-in forwards;
+      transform-origin: center;
+    }
+
+    .warmup-runner {
+      right: 18px;
+      bottom: 54px;
+      font-size: 3rem;
+      animation: warmupRun 3000ms linear forwards;
+    }
+
+    @keyframes volleyballBurst {
+      0% { transform: translate(0, 0) scale(0.6) rotate(0deg); opacity: 0; }
+      12% { opacity: 1; }
+      100% { transform: translate(var(--dx), var(--dy)) scale(1.05) rotate(220deg); opacity: 0; }
+    }
+
+    @keyframes trophyFlip {
+      0% { transform: translateY(0) rotateY(0deg) rotate(0deg) scale(0.8); opacity: 0; }
+      20% { opacity: 1; }
+      100% { transform: translateY(-50px) rotateY(720deg) rotate(12deg) scale(1.2); opacity: 0; }
+    }
+
+    @keyframes warmupRun {
+      0% { transform: translateX(120px) translateY(0); opacity: 0; }
+      10% { opacity: 1; }
+      35% { transform: translateX(30px) translateY(-8px); opacity: 1; }
+      70% { transform: translateX(-40px) translateY(8px); opacity: 1; }
+      100% { transform: translateX(-160px) translateY(0); opacity: 0; }
+    }
+
+    @media (max-width: 980px) {
+      .two-up,
+      .three-up {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .shell {
+        width: min(100% - 18px, 100%);
+        margin-top: 16px;
+      }
+
+      .hero,
+      .panel {
+        padding: 18px;
+      }
+
+      .tab-bar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .attendance-card {
+        grid-template-columns: auto 1fr;
+      }
+
+      .attendance-card > :last-child {
+        grid-column: 1 / -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="hero">
+      <h1>Team Wonder AI</h1>
+      <p>
+        Coach Hayley&apos;s hub for winning.
+        Mark who is attending, capture what each player brings, and get balanced set-by-set lineup ideas with fairness-minded switches.
+      </p>
+    </section>
+
+    <div class="tab-bar" id="tabBar">
+      <button class="tab-button active" data-tab="team">1. THE TEAM</button>
+      <button class="tab-button" data-tab="traits">2. PLAYERS</button>
+      <button class="tab-button" data-tab="setup">3. THE GAME</button>
+      <button class="tab-button" data-tab="plan">4. AI SET UP</button>
+    </div>
+
+    <section class="tab-panel active" id="team">
+      <div class="panel">
+        <h2>THE TEAM</h2>
+      </div>
+      <div id="teamGrid" class="team-grid" style="margin-top: 18px;"></div>
+    </section>
+
+    <section class="tab-panel" id="setup">
+      <div class="panel">
+        <h2>THE GAME</h2>
+        <div class="tag-row">
+          <div>
+            <label for="teamName">Team Name</label>
+            <input id="teamName" value="Team Wonder AI" />
+          </div>
+          <div>
+            <label for="opponentName">Opponent</label>
+            <input id="opponentName" placeholder="Optional" />
+          </div>
+          <div>
+            <label for="matchDate">Match Date</label>
+            <input id="matchDate" type="date" />
+          </div>
+          <div>
+            <label for="includeThirdSet">Planning Mode</label>
+            <select id="includeThirdSet">
+              <option value="2">Plan 2 sets</option>
+              <option value="3">Plan 3 sets</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions" style="margin-top: 14px;">
+          <button class="btn btn-soft" id="savePlanner">Save and propsose sets postions</button>
+          <button class="btn btn-ghost" id="clearAll">Reset Planner</button>
+        </div>
+        <div class="save-row">
+          <span class="save-status" id="saveStatus">Update attendance, then save to calculate the set suggestions.</span>
+        </div>
+      </div>
+      <div class="panel" style="margin-top: 18px;">
+        <div class="attendance-actions" style="margin-bottom: 14px;">
+          <h2 style="margin: 0;">Who Is Coming?</h2>
+          <button class="btn btn-soft" id="markAllComing">Mark All Attending</button>
+          <button class="btn btn-ghost" id="markNoneComing">Clear Attendance</button>
+        </div>
+        <div id="attendanceList" class="attendance-list"></div>
+        <div class="actions" style="margin-top: 18px; justify-content: flex-end;">
+          <button class="btn btn-primary" id="savePlannerBottom">Save and propsose sets postions</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="tab-panel" id="traits">
+      <div class="panel">
+        <h2>PLAYERS</h2>
+        <p>
+          Coach, mark each player with the most data you can - it will be used for the sets.
+        </p>
+        <div>
+          <strong>Primary role guide:</strong><br>
+          Universal = all-around player who can help almost anywhere.<br>
+          Setter = organizes the offense and delivers the second ball.<br>
+          Middle = strongest central net player for blocking and quick attacks.<br>
+          Outside = left-side attacker who often also passes.<br>
+          Receiver = strongest serve-receive and back-row control player.<br>
+          Opposite = right-side attacker who can help block and finish rallies.<br>
+          Defensive Specialist = back-row defender used for control, coverage and digging.
+        </div>
+      </div>
+      <div id="playerForms" class="player-forms" style="margin-top: 18px;"></div>
+    </section>
+
+    <section class="tab-panel" id="plan">
+      <div class="panel">
+        <div class="actions" style="justify-content: space-between;">
+          <div>
+            <h2 style="margin-bottom: 4px;">AI SET UP</h2>
+            <small>Balanced around fit, libero rules, and equal playing time.</small>
+          </div>
+          <button class="btn btn-primary" id="recommendBtn">Recommend Lineups</button>
+        </div>
+      </div>
+
+      <div class="panel" style="margin-top: 18px;">
+        <div class="metrics" id="metrics"></div>
+        <div id="planOutput"></div>
+      </div>
+    </section>
+
+    <div class="footer">
+      Team Wonder AI stores your planner data only in this browser with local storage.
+    </div>
+  </div>
+  <div class="fx-layer" id="fxLayer" aria-hidden="true"></div>
+
+  <script>
+    const STORAGE_KEY = "team-wonder-ai-state-v2";
+    const excelRosterText = `2 Pnina
+8 Shalini
+29 Noga
+5 Yaara
+17 Yahav
+6 Nitzan
+14 Einat
+28 Avi
+3 Laks
+28 Sari
+9 Asia
+48 Lisa (Sparkles)
+16 Maanit
+26 Liron`;
+
+    const rosterImageMap = {
+      "pnina": "wonder/pnina.png",
+      "shalini": "wonder/shalini.png",
+      "noga": "wonder/noga.png",
+      "yaara": "wonder/Yaara.png",
+      "yahav": "wonder/yahav.png",
+      "nitzan": "wonder/nitzan.png",
+      "einat": "wonder/einat.png",
+      "avi": "wonder/avi.png",
+      "laks": "wonder/laks.png",
+      "sari": "wonder/sari.png",
+      "asia": "wonder/asia.png",
+      "lisa (sparkles)": "wonder/Lisa.png",
+      "maanit": "wonder/Maanit.png",
+      "liron": "wonder/liron.png"
+    };
+
+    const roleOptions = [
+      "Universal",
+      "Setter",
+      "Middle",
+      "Outside",
+      "Receiver",
+      "Opposite",
+      "Defensive Specialist"
+    ];
+
+    const skillDefs = [
+      { key: "serveReceive", label: "Serve Receive", hint: "Best passers cover more court in serve receive." },
+      { key: "defense", label: "Defense", hint: "Digging, reading and keeping rallies alive." },
+      { key: "setting", label: "Setting", hint: "Decision-making and quality second contact." },
+      { key: "attack", label: "Attack", hint: "Finishing, placement and pressure." },
+      { key: "blocking", label: "Blocking", hint: "Net presence and front-row value." },
+      { key: "serving", label: "Serving", hint: "Pressure from the line." },
+      { key: "mobility", label: "Mobility", hint: "Speed, range and transition ability." },
+      { key: "communication", label: "Communication", hint: "Leadership, clarity and calm." },
+      { key: "reach", label: "Height / Reach", hint: "Useful for middle and front-row assignments." }
+    ];
+
+    const lineupSlots = [
+      {
+        slot: "P1",
+        court: "Right Back",
+        focus: "Server / back-row defender",
+        score(player) {
+          return (
+            player.skills.serving * 1.1 +
+            player.skills.defense * 1.15 +
+            player.skills.mobility * 0.8 +
+            player.skills.serveReceive * 0.5 +
+            roleBonus(player, ["Receiver", "Defensive Specialist", "Universal"], 0.6)
+          );
+        }
+      },
+      {
+        slot: "P2",
+        court: "Right Front",
+        focus: "Setter / right-side organizer",
+        score(player) {
+          return (
+            player.skills.setting * 1.75 +
+            player.skills.communication * 0.95 +
+            player.skills.attack * 0.55 +
+            player.skills.blocking * 0.45 +
+            player.skills.reach * 0.35 +
+            roleBonus(player, ["Setter", "Opposite", "Universal"], 1.2)
+          );
+        }
+      },
+      {
+        slot: "P3",
+        court: "Middle Front",
+        focus: "Middle blocker / central net presence",
+        score(player) {
+          return (
+            player.skills.blocking * 1.6 +
+            player.skills.attack * 0.9 +
+            player.skills.reach * 1.05 +
+            player.skills.mobility * 0.4 +
+            roleBonus(player, ["Middle", "Universal"], 1.2)
+          );
+        }
+      },
+      {
+        slot: "P4",
+        court: "Left Front",
+        focus: "Outside / universal attack",
+        score(player) {
+          return (
+            player.skills.attack * 1.25 +
+            player.skills.serveReceive * 0.8 +
+            player.skills.defense * 0.45 +
+            player.skills.reach * 0.4 +
+            roleBonus(player, ["Outside", "Receiver", "Universal"], 1.1)
+          );
+        }
+      },
+      {
+        slot: "P5",
+        court: "Left Back",
+        focus: "Receiver / back-row stabilizer",
+        score(player) {
+          return (
+            player.skills.serveReceive * 1.55 +
+            player.skills.defense * 1.1 +
+            player.skills.mobility * 0.8 +
+            player.skills.communication * 0.35 +
+            roleBonus(player, ["Receiver", "Defensive Specialist", "Universal"], 1.0) +
+            (player.isLibero ? 0.75 : 0)
+          );
+        }
+      },
+      {
+        slot: "P6",
+        court: "Middle Back",
+        focus: "Libero / deep-court anchor",
+        score(player) {
+          return (
+            player.skills.defense * 1.5 +
+            player.skills.serveReceive * 1.25 +
+            player.skills.mobility * 1.05 +
+            player.skills.communication * 0.4 +
+            roleBonus(player, ["Receiver", "Defensive Specialist", "Universal"], 0.9) +
+            (player.isLibero ? 2.2 : 0)
+          );
+        }
+      }
+    ];
+
+    const defaultSkills = Object.fromEntries(skillDefs.map(skill => [skill.key, 3]));
+    const state = loadState();
+
+    const attendanceList = document.getElementById("attendanceList");
+    const playerForms = document.getElementById("playerForms");
+    const teamGrid = document.getElementById("teamGrid");
+    const planOutput = document.getElementById("planOutput");
+    const metrics = document.getElementById("metrics");
+    const includeThirdSet = document.getElementById("includeThirdSet");
+    const teamName = document.getElementById("teamName");
+    const opponentName = document.getElementById("opponentName");
+    const matchDate = document.getElementById("matchDate");
+    const saveStatus = document.getElementById("saveStatus");
+    const fxLayer = document.getElementById("fxLayer");
+
+    init();
+
+    function init() {
+      if (!state.rosterText || hasLegacySampleRoster(state)) {
+        state.rosterText = excelRosterText;
+      }
+      if (Array.isArray(state.players) && state.players.length) {
+        state.players = state.players.map(player => ({
+          ...player,
+          imagePath: player.imagePath || defaultImagePathForName(player.name)
+        }));
+      }
+      if (typeof state.planReady !== "boolean") {
+        state.planReady = false;
+      }
+      includeThirdSet.value = String(state.setCount || 2);
+      teamName.value = state.teamName || "Team Wonder AI";
+      opponentName.value = state.opponentName || "";
+      matchDate.value = state.matchDate || "";
+      bindEvents();
+
+      if (!state.players.length) {
+        applyRosterText(excelRosterText, false);
+      } else {
+        if (hasLegacySampleRoster(state)) {
+          applyRosterText(excelRosterText, true);
+          return;
+        }
+        renderAll();
+      }
+    }
+
+    function bindEvents() {
+      document.getElementById("clearAll").addEventListener("click", () => {
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      });
+
+      document.getElementById("savePlanner").addEventListener("click", () => {
+        state.planReady = true;
+        saveState(true);
+        renderRecommendation();
+        switchToTab("plan");
+      });
+
+      const saveBottom = document.getElementById("savePlannerBottom");
+      if (saveBottom) {
+        saveBottom.addEventListener("click", () => {
+          state.planReady = true;
+          saveState(true);
+          renderRecommendation();
+          switchToTab("plan");
+        });
+      }
+
+      document.getElementById("markAllComing").addEventListener("click", () => {
+        state.players.forEach(player => { player.attending = true; });
+        markPlanDirty();
+        saveAndRender();
+      });
+
+      document.getElementById("markNoneComing").addEventListener("click", () => {
+        state.players.forEach(player => { player.attending = false; });
+        markPlanDirty();
+        saveAndRender();
+      });
+
+      document.getElementById("recommendBtn").addEventListener("click", () => {
+        renderRecommendation();
+      });
+
+      includeThirdSet.addEventListener("change", () => {
+        state.setCount = Number(includeThirdSet.value);
+        markPlanDirty();
+        saveState();
+      });
+
+      teamName.addEventListener("input", () => {
+        state.teamName = teamName.value;
+        markPlanDirty();
+        saveState();
+      });
+
+      opponentName.addEventListener("input", () => {
+        state.opponentName = opponentName.value;
+        markPlanDirty();
+        saveState();
+      });
+
+      matchDate.addEventListener("input", () => {
+        state.matchDate = matchDate.value;
+        markPlanDirty();
+        saveState();
+      });
+
+      document.querySelectorAll(".tab-button").forEach(button => {
+        button.addEventListener("click", () => {
+          switchToTab(button.dataset.tab);
+        });
+      });
+    }
+
+    function applyRosterText(text, keepExistingTraits) {
+      const parsed = parseRoster(text);
+      state.rosterText = text;
+
+      if (!parsed.length) {
+        state.players = [];
+        saveAndRender();
+        return;
+      }
+
+      const existingBySignature = new Map(
+        state.players.map(player => [playerSignature(player), player])
+      );
+
+      state.players = parsed.map((entry, index) => {
+        const signature = playerSignature(entry);
+        const existing = existingBySignature.get(signature);
+        if (existing && keepExistingTraits) {
+          return {
+            ...existing,
+            id: existing.id || `${signature}-${index}`,
+            name: entry.name,
+            number: entry.number
+          };
+        }
+
+        return {
+          id: `${signature}-${index}`,
+          number: entry.number,
+          name: entry.name,
+          imageData: existing && keepExistingTraits ? (existing.imageData || "") : "",
+          imagePath: existing && keepExistingTraits ? (existing.imagePath || defaultImagePathForName(entry.name)) : defaultImagePathForName(entry.name),
+          attending: true,
+          primaryRole: "Universal",
+          isLibero: false,
+          skills: { ...defaultSkills }
+        };
+      });
+
+      saveAndRender();
+    }
+
+    function parseRoster(text) {
+      return text
+        .split(/\n+/)
+        .map(line => line.trim())
+        .filter(Boolean)
+        .map(line => {
+          const cleaned = line.replace(/^#/, "");
+          const match = cleaned.match(/^(\d+)\s+(.+)$/);
+          if (match) {
+            return { number: match[1], name: match[2].trim() };
+          }
+          return { number: "", name: cleaned };
+        });
+    }
+
+    function renderAll() {
+      renderAttendance();
+      renderTraits();
+      renderTeam();
+      if (state.planReady) {
+        renderRecommendation();
+      } else {
+        renderPlanPlaceholder();
+      }
+      saveState();
+    }
+
+    function saveAndRender() {
+      renderAll();
+    }
+
+    function renderAttendance() {
+      if (!state.players.length) {
+        attendanceList.innerHTML = `<div class="empty">Load a roster to start planning attendance.</div>`;
+        return;
+      }
+
+      attendanceList.innerHTML = state.players.map(player => `
+        <div class="attendance-card">
+          <div class="shirt">${escapeHtml(player.number || "?")}</div>
+          <div>
+            <strong>${escapeHtml(player.name)}</strong>
+            <div style="margin-top: 6px;">
+              <span class="pill">${escapeHtml(player.primaryRole || "Universal")}</span>
+              ${player.isLibero ? `<span class="pill">Libero</span>` : ""}
+            </div>
+          </div>
+          <label style="display:flex; align-items:center; gap:10px; margin:0;">
+            <input type="checkbox" data-attend="${player.id}" ${player.attending ? "checked" : ""}>
+            Attending
+          </label>
+        </div>
+      `).join("");
+
+      attendanceList.querySelectorAll("[data-attend]").forEach(input => {
+        input.addEventListener("change", event => {
+          const player = state.players.find(item => item.id === event.target.dataset.attend);
+          if (!player) return;
+          player.attending = event.target.checked;
+          markPlanDirty();
+          saveAndRender();
+        });
+      });
+    }
+
+    function renderTraits() {
+      const attendingPlayers = state.players.filter(player => player.attending);
+      if (!attendingPlayers.length) {
+        playerForms.innerHTML = `<div class="empty">Mark at least one player as attending to fill in characteristics.</div>`;
+        return;
+      }
+
+      const sortedPlayers = [...attendingPlayers].sort((a, b) => a.name.localeCompare(b.name));
+
+      playerForms.innerHTML = sortedPlayers.map(player => `
+        <div class="player-card">
+          <div class="player-header">
+            <div class="player-thumb">
+              ${playerImageMarkup(player)}
+            </div>
+            <div>
+              <h3 style="margin-bottom: 4px;">#${escapeHtml(player.number || "-")} ${escapeHtml(player.name)}</h3>
+              <small>Use 1-5 sliders. 5 means strong match impact in that category.</small>
+            </div>
+            <span class="pill">${escapeHtml(player.primaryRole)}</span>
+          </div>
+
+          <div class="tag-row">
+            <div>
+              <label>Primary Role</label>
+              <select data-role-primary="${player.id}">
+                ${roleOptions.map(role => `<option value="${role}" ${player.primaryRole === role ? "selected" : ""}>${role}</option>`).join("")}
+              </select>
+            </div>
+            <div>
+              <label>Special Flag</label>
+              <label style="display:flex; gap:10px; align-items:center; margin-top: 12px;">
+                <input type="checkbox" data-libero="${player.id}" ${player.isLibero ? "checked" : ""}>
+                Playing as libero
+              </label>
+            </div>
+          </div>
+
+          <div class="skill-grid">
+            ${skillDefs.map(skill => `
+              <div class="skill">
+                <div class="skill-head">
+                  <span>${skill.label}</span>
+                  <span id="${player.id}-${skill.key}-value">${player.skills[skill.key]}</span>
+                </div>
+                <input
+                  type="range"
+                  min="1"
+                  max="5"
+                  value="${player.skills[skill.key]}"
+                  data-skill-player="${player.id}"
+                  data-skill-key="${skill.key}"
+                />
+                <small>${skill.hint}</small>
+              </div>
+            `).join("")}
+          </div>
+          <div class="player-save-row">
+            <button class="btn btn-save" type="button" data-player-save="${player.id}">Save</button>
+          </div>
+        </div>
+      `).join("");
+
+      playerForms.querySelectorAll("[data-role-primary]").forEach(select => {
+        select.addEventListener("change", event => {
+          getPlayer(event.target.dataset.rolePrimary).primaryRole = event.target.value;
+          markPlanDirty();
+          saveAndRender();
+        });
+      });
+
+      playerForms.querySelectorAll("[data-libero]").forEach(input => {
+        input.addEventListener("change", event => {
+          getPlayer(event.target.dataset.libero).isLibero = event.target.checked;
+          markPlanDirty();
+          saveAndRender();
+        });
+      });
+
+      playerForms.querySelectorAll("[data-skill-player]").forEach(input => {
+        input.addEventListener("input", event => {
+          const player = getPlayer(event.target.dataset.skillPlayer);
+          const key = event.target.dataset.skillKey;
+          player.skills[key] = Number(event.target.value);
+          document.getElementById(`${player.id}-${key}-value`).textContent = event.target.value;
+          markPlanDirty();
+          saveState();
+        });
+      });
+
+      playerForms.querySelectorAll("[data-player-save]").forEach(button => {
+        button.addEventListener("click", event => {
+          saveState(true);
+          const target = event.currentTarget;
+          const originalText = target.textContent;
+          target.textContent = "Saved";
+          target.disabled = true;
+          setTimeout(() => {
+            target.textContent = originalText;
+            target.disabled = false;
+          }, 1200);
+        });
+      });
+    }
+
+    function renderRecommendation() {
+      if (!state.planReady) {
+        renderPlanPlaceholder();
+        return;
+      }
+
+      const attendingPlayers = state.players.filter(player => player.attending);
+      const setCount = Number(includeThirdSet.value);
+      state.setCount = setCount;
+      metrics.innerHTML = "";
+
+      if (attendingPlayers.length < 6) {
+        planOutput.innerHTML = `
+          <div class="empty">
+            You currently have <strong>${attendingPlayers.length}</strong> attending player${attendingPlayers.length === 1 ? "" : "s"}.
+            Team Wonder AI needs at least 6 available players to build on-court set recommendations.
+          </div>
+        `;
+        return;
+      }
+
+      const plan = buildPlan(attendingPlayers, setCount);
+      const fairnessSpread = plan.fairness.maxSegments - plan.fairness.minSegments;
+
+      metrics.innerHTML = `
+        <div class="metric-card">
+          <small>Attending</small>
+          <strong>${attendingPlayers.length}</strong>
+        </div>
+        <div class="metric-card">
+          <small>Planned Sets</small>
+          <strong>${setCount}</strong>
+        </div>
+        <div class="metric-card">
+          <small>Switches Planned</small>
+          <strong>${plan.totalSwitches}</strong>
+        </div>
+        <div class="metric-card">
+          <small>Fairness Spread</small>
+          <strong>${fairnessSpread}</strong>
+        </div>
+      `;
+
+      planOutput.innerHTML = `
+        <div class="grid two-up">
+          ${plan.sets.map((setPlan, index) => renderSetCard(setPlan, index + 1, plan.rotationPlans[index]?.rows || [])).join("")}
+        </div>
+        <div class="grid two-up" style="margin-top: 18px;">
+          <div class="lineup-card">
+            <h3>In-Set Rotation Plan</h3>
+            <div class="lineup-wrap">
+              ${plan.rotationPlans.map(block => `
+                <div>
+                  <p style="margin: 0 0 10px;"><strong>${block.title}</strong></p>
+                  <table class="rotation-table">
+                    <thead>
+                      <tr>
+                        <th>When</th>
+                        <th>Player In</th>
+                        <th>Player Out</th>
+                        <th>Spot</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      ${block.rows.map(row => `
+                        <tr>
+                          <td>${escapeHtml(row.when)}</td>
+                          <td>${escapeHtml(row.playerIn)}</td>
+                          <td>${escapeHtml(row.playerOut)}</td>
+                          <td>${escapeHtml(row.spot)}</td>
+                        </tr>
+                      `).join("")}
+                    </tbody>
+                  </table>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+          <div class="lineup-card">
+            <h3>Playing Time Balance</h3>
+            <p style="margin: 0 0 10px; color: var(--muted);">
+              In a 2-set match, 1.0 set means a player is planned to play about one full set total.
+            </p>
+            <table class="time-table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th>Number</th>
+                  <th>Played</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${plan.fairness.players.map(player => `
+                  <tr>
+                    <td>${escapeHtml(player.name)}</td>
+                    <td>#${escapeHtml(player.number || "-")}</td>
+                    <td>${formatHalfSetValue(player.segmentsPlayed)}</td>
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+            <div class="note">
+              The planner protects position fit first, then uses up to 6 substitution checkpoints inside each set to flatten total game time over the first 2 sets.
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPlanPlaceholder() {
+      metrics.innerHTML = "";
+      planOutput.innerHTML = `
+        <div class="empty">
+          Save from <strong>THE GAME</strong> to lock attendance and propose starting set positions.
+          <div class="wink">No one wants surprise rotations. Not even the net.</div>
+        </div>
+      `;
+    }
+
+    function renderTeam() {
+      if (!state.players.length) {
+        teamGrid.innerHTML = `<div class="empty">Load a roster to build the team gallery.</div>`;
+        return;
+      }
+
+      const sortedPlayers = [...state.players].sort((a, b) => a.name.localeCompare(b.name));
+
+      teamGrid.innerHTML = sortedPlayers.map(player => `
+        <article class="team-card">
+          <div class="team-photo">
+            ${playerImageMarkup(player)}
+          </div>
+          <h3>${escapeHtml(player.name)}</h3>
+          <p>#${escapeHtml(player.number || "-")}</p>
+          <div class="team-upload">
+            <label for="image-${player.id}">Player Image</label>
+            <input id="image-${player.id}" type="file" accept="image/*" data-player-image="${player.id}">
+          </div>
+        </article>
+      `).join("");
+
+      teamGrid.querySelectorAll("[data-player-image]").forEach(input => {
+        input.addEventListener("change", event => {
+          const [file] = event.target.files || [];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = () => {
+            const player = getPlayer(event.target.dataset.playerImage);
+            if (!player) return;
+            player.imageData = typeof reader.result === "string" ? reader.result : "";
+            renderTeam();
+            saveState();
+          };
+          reader.readAsDataURL(file);
+        });
+      });
+    }
+
+    function renderSetCard(setPlan, setNumber, rotationRows) {
+      const spotMap = {
+        "P4": { left: "20%", top: "36%" },
+        "P3": { left: "50%", top: "36%" },
+        "P2": { left: "80%", top: "36%" },
+        "P5": { left: "20%", top: "80%" },
+        "P6": { left: "50%", top: "80%" },
+        "P1": { left: "80%", top: "80%" }
+      };
+      const switchedInIds = new Set(
+        rotationRows
+          .map(row => row.playerInId)
+          .filter(Boolean)
+      );
+      const partialSetPlayers = Array.from(
+        new Map(
+          rotationRows
+            .flatMap(row => {
+              const names = [];
+              if (row.playerIn && row.playerIn !== "-") names.push([row.playerInId || row.playerIn, row.playerIn]);
+              if (row.playerOut && row.playerOut !== "-") names.push([row.playerOutId || row.playerOut, row.playerOut]);
+              return names;
+            })
+        ).values()
+      );
+      const neverSwitchedIn = setPlan.bench.filter(player => !switchedInIds.has(player.id));
+      const partialSetLabel = partialSetPlayers.length >= state.players.filter(player => player.attending).length
+        ? "ALL"
+        : partialSetPlayers.length
+          ? partialSetPlayers.map(playerLabel => escapeHtml(playerLabel)).join(", ")
+          : "No one";
+
+      return `
+        <div class="lineup-card">
+          <div class="inline-actions" style="justify-content: space-between; margin-bottom: 12px;">
+            <div>
+              <h3 style="margin-bottom: 4px;">Set ${setNumber}</h3>
+              <small>${setPlan.label}</small>
+            </div>
+            <span class="pill">${setPlan.bench.length ? `${setPlan.bench.length} on bench` : "Full six locked"}</span>
+          </div>
+          <p style="margin: 0 0 8px;"><strong>Positions</strong></p>
+          <div class="court-sheet">
+            <div class="net-line"></div>
+            ${setPlan.lineup.map(row => `
+              <div class="court-spot" style="left:${spotMap[row.slot].left}; top:${spotMap[row.slot].top};">
+                <div>
+                  <strong>#${escapeHtml(row.player.number || "-")}</strong>
+                  <strong>${escapeHtml(row.player.name)}</strong>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="note" style="margin-top: 14px;">
+            <strong>Isn&apos;t playing this set:</strong>
+            ${neverSwitchedIn.length ? neverSwitchedIn.map(player => `#${escapeHtml(player.number || "-")} ${escapeHtml(player.name)}`).join(", ") : "No one"}
+            <br><br>
+            <strong>Playing part of the set:</strong>
+            ${partialSetLabel}
+          </div>
+        </div>
+      `;
+    }
+
+    function buildPlan(players, setCount) {
+      const setTracking = new Map(players.map(player => [player.id, 0]));
+      const segmentTracking = new Map(players.map(player => [player.id, 0]));
+      const sets = [];
+      const rotationPlans = [];
+      const previousStartingSlots = new Map();
+
+      for (let i = 0; i < setCount; i += 1) {
+        const selected = choosePlayersForSet(players, setTracking, setCount);
+        const assigned = assignSlots(selected, previousStartingSlots);
+        const bench = players
+          .filter(player => !selected.some(chosen => chosen.id === player.id))
+          .sort((a, b) => playerLabel(a).localeCompare(playerLabel(b)));
+
+        selected.forEach(player => setTracking.set(player.id, setTracking.get(player.id) + 1));
+        assigned.forEach(row => previousStartingSlots.set(row.player.id, row.slot));
+
+        const rotation = buildInSetRotationPlan(assigned, bench, segmentTracking, i + 1);
+        rotation.segmentTracking.forEach((value, key) => segmentTracking.set(key, value));
+
+        sets.push({
+          label: i === 0 ? "Strongest opening balance" : i === 1 ? "Fairness-adjusted second set" : "Optional tie-breaker balance",
+          lineup: assigned,
+          bench
+        });
+        rotationPlans.push({
+          title: `Set ${i + 1} switch plan`,
+          rows: rotation.rows
+        });
+      }
+
+      const fairnessPlayers = players
+        .map(player => ({
+          ...player,
+          setsPlayed: setTracking.get(player.id),
+          segmentsPlayed: segmentTracking.get(player.id)
+        }))
+        .sort((a, b) => a.segmentsPlayed - b.segmentsPlayed || playerLabel(a).localeCompare(playerLabel(b)));
+
+      return {
+        sets,
+        rotationPlans,
+        totalSwitches: rotationPlans.reduce((sum, block) => sum + block.rows.filter(row => row.playerIn !== "-").length, 0),
+        fairness: {
+          players: fairnessPlayers,
+          minSegments: Math.min(...fairnessPlayers.map(player => player.segmentsPlayed)),
+          maxSegments: Math.max(...fairnessPlayers.map(player => player.segmentsPlayed))
+        }
+      };
+    }
+
+    function choosePlayersForSet(players, tracking, setCount) {
+      const target = (setCount * 6) / players.length;
+      return [...players]
+        .map(player => {
+          const played = tracking.get(player.id);
+          const positionalPeak = Math.max(...lineupSlots.map(slot => slot.score(player)));
+          const fairnessBoost = (target - played) * 2.15;
+          const liberoBoost = player.isLibero ? 0.3 : 0;
+          return {
+            player,
+            rank: positionalPeak + fairnessBoost + liberoBoost
+          };
+        })
+        .sort((a, b) => b.rank - a.rank)
+        .slice(0, 6)
+        .map(entry => entry.player);
+    }
+
+    function assignSlots(players, previousStartingSlots = new Map()) {
+      const possibilities = permutations(players);
+      let best = null;
+
+      for (const order of possibilities) {
+        let total = 0;
+        let valid = true;
+        const lineup = [];
+
+        for (let index = 0; index < lineupSlots.length; index += 1) {
+          const slot = lineupSlots[index];
+          const player = order[index];
+
+          if (player.isLibero && ["P2", "P3", "P4"].includes(slot.slot)) {
+            valid = false;
+            break;
+          }
+
+          const score = slot.score(player);
+          const repeatPenalty = previousStartingSlots.get(player.id) === slot.slot ? 1.35 : 0;
+          total += score - repeatPenalty;
+          lineup.push({
+            slot: slot.slot,
+            court: slot.court,
+            focus: slot.focus,
+            player,
+            score
+          });
+        }
+
+        if (valid && (!best || total > best.total)) {
+          best = { total, lineup };
+        }
+      }
+
+      return best ? best.lineup : lineupSlots.map((slot, index) => ({
+        slot: slot.slot,
+        court: slot.court,
+        focus: slot.focus,
+        player: players[index]
+      }));
+    }
+
+    function buildInSetRotationPlan(lineup, bench, segmentTracking, setNumber) {
+      const currentLineup = lineup.map(row => ({ ...row }));
+      const currentBench = [...bench];
+      const localTracking = new Map(segmentTracking);
+      const rows = [];
+      const checkpoints = [
+        "5 points",
+        "9 points",
+        "13 points",
+        "17 points",
+        "19 points",
+        "22 points"
+      ];
+
+      currentLineup.forEach(row => {
+        localTracking.set(row.player.id, (localTracking.get(row.player.id) || 0) + 1);
+      });
+
+      for (let i = 0; i < checkpoints.length && currentBench.length; i += 1) {
+        const benchChoice = [...currentBench].sort((a, b) => {
+          const diff = (localTracking.get(a.id) || 0) - (localTracking.get(b.id) || 0);
+          if (diff !== 0) return diff;
+          return playerLabel(a).localeCompare(playerLabel(b));
+        })[0];
+
+        let bestSwap = null;
+        currentLineup.forEach((row, index) => {
+          const fitLoss = row.score - lineupSlots.find(slot => slot.slot === row.slot).score(benchChoice);
+          const outgoingMinutes = localTracking.get(row.player.id) || 0;
+          const incomingMinutes = localTracking.get(benchChoice.id) || 0;
+          const fairnessGain = outgoingMinutes - incomingMinutes;
+          const swapValue = fairnessGain - Math.max(0, fitLoss) * 0.35;
+          if (!bestSwap || swapValue > bestSwap.swapValue) {
+            bestSwap = { row, index, swapValue };
+          }
+        });
+
+        if (!bestSwap || bestSwap.swapValue <= 0) break;
+
+        const outgoing = bestSwap.row.player;
+        const incoming = benchChoice;
+        rows.push({
+          setLabel: `Set ${setNumber}`,
+          when: checkpoints[i],
+          playerIn: `#${incoming.number || "-"} ${incoming.name}`,
+          playerInId: incoming.id,
+          playerOut: `#${outgoing.number || "-"} ${outgoing.name}`,
+          playerOutId: outgoing.id,
+          spot: bestSwap.row.slot
+        });
+
+        currentBench.splice(currentBench.findIndex(player => player.id === incoming.id), 1);
+        currentBench.push(outgoing);
+        currentLineup[bestSwap.index] = {
+          ...bestSwap.row,
+          player: incoming,
+          score: lineupSlots.find(slot => slot.slot === bestSwap.row.slot).score(incoming)
+        };
+
+        currentLineup.forEach(row => {
+          localTracking.set(row.player.id, (localTracking.get(row.player.id) || 0) + 1);
+        });
+      }
+
+      if (!rows.length) {
+        rows.push({
+          setLabel: `Set ${setNumber}`,
+          when: "-",
+          playerIn: "-",
+          playerInId: "",
+          playerOut: "-",
+          playerOutId: "",
+          spot: "-"
+        });
+      }
+
+      return { rows, segmentTracking: localTracking };
+    }
+
+    function loadState() {
+      try {
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+        if (saved && Array.isArray(saved.players)) {
+          return saved;
+        }
+      } catch (error) {
+        console.warn("Could not load saved planner state.", error);
+      }
+      return {
+        rosterText: "",
+        setCount: 2,
+        teamName: "Team Wonder AI",
+        opponentName: "",
+        matchDate: "",
+        players: []
+      };
+    }
+
+    function saveState(showFeedback = false) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (saveStatus) {
+        saveStatus.textContent = showFeedback
+          ? `Saved at ${new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" })}.`
+          : state.planReady
+            ? "Saved. Set suggestions match the current game setup."
+            : "Changes are saved. Save from THE GAME when you want fresh set suggestions.";
+      }
+    }
+
+    function markPlanDirty() {
+      state.planReady = false;
+    }
+
+    function hasLegacySampleRoster(currentState) {
+      const names = (currentState.players || []).map(player => (player.name || "").trim().toLowerCase());
+      return names.includes("maya") || names.includes("noa") || names.includes("yael") || names.includes("shira");
+    }
+
+    function defaultImagePathForName(name) {
+      return rosterImageMap[(name || "").trim().toLowerCase()] || "";
+    }
+
+    function playerImageMarkup(player) {
+      const src = player.imageData || player.imagePath;
+      if (src) {
+        return `<img src="${escapeHtml(src)}" alt="${escapeHtml(player.name)}">`;
+      }
+      return `<span>#${escapeHtml(player.number || "?")}</span>`;
+    }
+
+    function formatHalfSetValue(segmentsPlayed) {
+      const halfSets = Math.round(((segmentsPlayed / 7) * 2)) / 2;
+      return `${halfSets.toFixed(1)} sets`;
+    }
+
+    function switchToTab(tabId) {
+      document.querySelectorAll(".tab-button").forEach(item => {
+        item.classList.toggle("active", item.dataset.tab === tabId);
+      });
+      document.querySelectorAll(".tab-panel").forEach(panel => {
+        panel.classList.toggle("active", panel.id === tabId);
+      });
+      triggerTabEffect(tabId);
+    }
+
+    function triggerTabEffect(tabId) {
+      if (!fxLayer) return;
+      if (tabId === "traits") {
+        launchVolleyballBurst();
+      } else if (tabId === "setup") {
+        launchTrophyFlip();
+      } else if (tabId === "plan") {
+        launchWarmupRunner();
+      }
+    }
+
+    function launchVolleyballBurst() {
+      const centerX = window.innerWidth / 2;
+      const centerY = 100;
+      const vectors = [
+        [-180, 120], [-130, 170], [-70, 210], [0, 230], [70, 210], [130, 170], [180, 120]
+      ];
+      vectors.forEach(([dx, dy], index) => {
+        const ball = document.createElement("div");
+        ball.className = "fx-item volley-burst";
+        ball.textContent = "🏐";
+        ball.style.left = `${centerX}px`;
+        ball.style.top = `${centerY}px`;
+        ball.style.setProperty("--dx", `${dx}px`);
+        ball.style.setProperty("--dy", `${dy}px`);
+        ball.style.animationDelay = `${index * 40}ms`;
+        fxLayer.appendChild(ball);
+        setTimeout(() => ball.remove(), 1500);
+      });
+    }
+
+    function launchTrophyFlip() {
+      const trophy = document.createElement("div");
+      trophy.className = "fx-item trophy-flip";
+      trophy.textContent = "🏆";
+      fxLayer.appendChild(trophy);
+      setTimeout(() => trophy.remove(), 1500);
+    }
+
+    function launchWarmupRunner() {
+      const runner = document.createElement("div");
+      runner.className = "fx-item warmup-runner";
+      runner.textContent = "🏃‍♀️";
+      fxLayer.appendChild(runner);
+      setTimeout(() => runner.remove(), 3200);
+    }
+
+    function playerSignature(player) {
+      return `${(player.number || "").trim()}::${(player.name || "").trim().toLowerCase()}`;
+    }
+
+    function getPlayer(id) {
+      return state.players.find(player => player.id === id);
+    }
+
+    function roleBonus(player, roles, amount) {
+      return roles.includes(player.primaryRole) ? amount : 0;
+    }
+
+    function permutations(items) {
+      if (items.length <= 1) return [items];
+      const result = [];
+
+      items.forEach((item, index) => {
+        const rest = [...items.slice(0, index), ...items.slice(index + 1)];
+        permutations(rest).forEach(sub => result.push([item, ...sub]));
+      });
+
+      return result;
+    }
+
+    function playerLabel(player) {
+      return `${player.number || ""} ${player.name}`.trim();
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#39;");
+    }
+  </script>
+</body>
+</html>
