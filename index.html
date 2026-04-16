@@ -1046,7 +1046,6 @@
             <small>Balanced around fit, libero rules, and equal playing time.</small>
           </div>
           <div class="actions">
-            <button class="btn btn-primary" id="recommendBtn">Recommend Lineups</button>
             <button class="btn btn-ghost" id="exportPlan">Export / Print PDF</button>
           </div>
         </div>
@@ -1338,10 +1337,6 @@
         saveAndRender();
       });
 
-      document.getElementById("recommendBtn").addEventListener("click", () => {
-        renderRecommendation();
-      });
-
       document.getElementById("exportPlan").addEventListener("click", () => {
         exportPrintablePlan();
       });
@@ -1615,7 +1610,10 @@
       }
 
       const plan = buildPlan(attendingPlayers, setCount);
-      const fairnessSpread = plan.fairness.maxSegments - plan.fairness.minSegments;
+      const averageSegments = plan.fairness.players.length
+        ? plan.fairness.players.reduce((sum, player) => sum + player.segmentsPlayed, 0) / plan.fairness.players.length
+        : 0;
+      const averageHalfSets = Math.round(((averageSegments / 7) * 2) * 10) / 10;
 
       metrics.innerHTML = `
         <div class="metric-card">
@@ -1631,8 +1629,8 @@
           <strong>${plan.totalSwitches}</strong>
         </div>
         <div class="metric-card">
-          <small>Fairness Spread</small>
-          <strong>${fairnessSpread}</strong>
+          <small>Average Playing Time</small>
+          <strong>${averageHalfSets.toFixed(1)} sets</strong>
         </div>
       `;
 
