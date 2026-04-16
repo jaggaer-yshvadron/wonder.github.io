@@ -571,6 +571,22 @@
       box-shadow: 0 0 0 4px rgba(246, 239, 239, 0.2);
     }
 
+    .net-line span {
+      position: absolute;
+      left: 50%;
+      top: -18px;
+      transform: translateX(-50%);
+      font-size: 0.82rem;
+      font-weight: 800;
+      letter-spacing: 0.18em;
+      color: white;
+      background: var(--accent);
+      padding: 4px 10px;
+      border-radius: 999px;
+      z-index: 3;
+      line-height: 1;
+    }
+
     .net-line::before,
     .net-line::after {
       content: "";
@@ -591,29 +607,26 @@
       right: -15px;
     }
 
-    .court-spot {
+    .court-label {
       position: absolute;
       transform: translate(-50%, -50%);
       width: 150px;
       min-height: 110px;
-      border-radius: 22px;
-      background: rgba(255, 252, 252, 0.94);
       color: var(--accent);
       padding: 14px 10px;
       text-align: center;
       display: grid;
       place-items: center;
-      box-shadow: 0 10px 24px rgba(78, 14, 25, 0.12);
-      border: 2px solid rgba(123, 30, 43, 0.08);
     }
 
-    .court-spot strong {
+    .court-label strong {
       display: block;
       font-size: 1rem;
       line-height: 1.15;
+      text-shadow: 0 1px 0 rgba(255, 247, 247, 0.7);
     }
 
-    .court-spot small {
+    .court-label small {
       display: block;
       font-size: 0.8rem;
       color: var(--muted);
@@ -783,8 +796,31 @@
         padding: 18px;
       }
 
+      .hero h1 {
+        font-size: 1.9rem;
+        line-height: 1.05;
+        padding-right: 28px;
+      }
+
+      .hero p {
+        font-size: 0.96rem;
+      }
+
       .tab-bar {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+        border-radius: 0;
+        overflow: visible;
+      }
+
+      .tab-button,
+      .tab-button:first-child,
+      .tab-button:last-child {
+        clip-path: none;
+        margin-right: 0;
+        border-radius: 14px;
+        padding: 12px 10px;
+        font-size: 0.92rem;
       }
 
       .attendance-card {
@@ -793,6 +829,89 @@
 
       .attendance-card > :last-child {
         grid-column: 1 / -1;
+      }
+
+      .player-header {
+        grid-template-columns: 74px 1fr;
+        align-items: start;
+      }
+
+      .player-header > .pill {
+        grid-column: 2;
+        justify-self: start;
+      }
+
+      .player-thumb {
+        width: 74px;
+        height: 92px;
+      }
+
+      .team-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .court-sheet {
+        aspect-ratio: 4 / 4.1;
+        border-width: 7px;
+      }
+
+      .net-line {
+        top: 54px;
+        left: 8%;
+        right: 8%;
+        height: 9px;
+        box-shadow: 0 0 0 3px rgba(246, 239, 239, 0.2);
+      }
+
+      .net-line span {
+        top: -16px;
+        font-size: 0.74rem;
+        padding: 3px 8px;
+      }
+
+      .net-line::before,
+      .net-line::after {
+        width: 20px;
+        height: 20px;
+      }
+
+      .net-line::before {
+        left: -10px;
+      }
+
+      .net-line::after {
+        right: -10px;
+      }
+
+      .court-label {
+        width: 92px;
+        min-height: 74px;
+        padding: 8px 6px;
+      }
+
+      .court-label strong {
+        font-size: 0.82rem;
+        line-height: 1.1;
+        word-break: break-word;
+      }
+
+      .rotation-table,
+      .time-table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+      }
+
+      .lineup-card h3 {
+        font-size: 1.05rem;
+      }
+
+      .lineup-card > .inline-actions {
+        align-items: flex-start;
       }
     }
   </style>
@@ -1586,9 +1705,9 @@
           </div>
           <p style="margin: 0 0 8px;"><strong>Positions</strong></p>
           <div class="court-sheet">
-            <div class="net-line"></div>
+            <div class="net-line"><span>NET</span></div>
             ${setPlan.lineup.map(row => `
-              <div class="court-spot" style="left:${spotMap[row.slot].left}; top:${spotMap[row.slot].top};">
+              <div class="court-spot" style="left:${spotMap[row.slot].left}; top:${spotMap[row.slot].top}; background:none; border:0; box-shadow:none; border-radius:0;">
                 <div>
                   <strong>#${escapeHtml(row.player.number || "-")}</strong>
                   <strong>${escapeHtml(row.player.name)}</strong>
